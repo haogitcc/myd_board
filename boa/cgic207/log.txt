@@ -1,0 +1,37 @@
+
+
+
+测试方法
+--------------------
+虚拟机运行 ./boa  需要root权限
+windows ie访问 http://192.168.129.130/index.html
+
+网页 css js在以下目录 参考/opt/boa/www/copyCssJs.sh
+//287
+cp /mnt/hgfs/share/boa/down/css1/css/style.css ./css/
+cp /mnt/hgfs/share/boa/down/css1/js/index.js ./js/
+cp /mnt/hgfs/share/boa/down/css1/cgictest.html ./
+
+//y2
+在其他目录
+
+
+
+-----------------------
+2018年8月25日13:03:28
+
+cgi源码
+可以拷贝到板子和ubuntu运行 
+
+编译 修改makefile的编译器
+唯一区别是需要交叉编译才能运行到板子
+c文件使用同一份即可
+各个.cgi单独生成
+
+工作目录是在 虚拟机 ~/cgi/cgic207目录下
+每次编译拷贝共享目录下
+E:\Share 14.04\y6ul-y2\src\boa\cgic207
+文件进行编译
+
+
+

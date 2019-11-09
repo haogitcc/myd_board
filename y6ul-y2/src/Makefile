@@ -1,0 +1,15 @@
+#CC=/opt/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-fsl-linux-gnueabi-gcc
+
+#CC=/opt/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-fsl-linux-gnueabi-gcc
+#CC=/home/shen/imx28/toolschain/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-fsl-linux-gnueabi-gcc
+CC=/home/shen/arm-toolschain/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
+#CC=gcc
+
+reader:reader.o app_sys_setting.o ind_cfg.o ind_string.o mid_msgq.o mid_mutex.o mid_net.o mid_select.o mid_task.o mid_telnet.o mid_timer.o ringbuf.o serialM6E.o server_m6e.o shell_play.o  telnetd_port.o osex_net.o m6e_upgrade.o gpio_init.o
+	$(CC) -o reader reader.o app_sys_setting.o ind_cfg.o ind_string.o mid_msgq.o mid_mutex.o mid_net.o mid_select.o mid_task.o mid_telnet.o mid_timer.o ringbuf.o serialM6E.o server_m6e.o shell_play.o  telnetd_port.o osex_net.o m6e_upgrade.o gpio_init.o -lpthread  -L./lib/libdhcpcd -lrt
+
+	#$(CC) -o reader reader.o app_sys_setting.o ind_cfg.o ind_string.o mid_msgq.o mid_mutex.o mid_net.o mid_select.o mid_task.o mid_telnet.o mid_timer.o ringbuf.o serialM6E.o server_m6e.o shell_play.o  telnetd_port.o osex_net.o m6e_upgrade.o gpio_init.o -lpthread  -L./lib/libdhcpcd -lrt ./lib/libMecuryAPI.a
+
+
+clean:
+	rm reader  *.o

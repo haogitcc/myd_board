@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+		<link rel="stylesheet" href="/css/style.css" media="screen" type="text/css" />
+		<title>TEST ONE static</title>
+	</head>
+	<body>
+		<form id="ipSetForm">
+			<!-- Keep all menus within masterdiv-->
+			<div id="masterdiv" class="rightDiv">
+				<div class="menutitle" onclick="SwitchMenu('setIP')">Connect</div>
+				<span class="submenu" id="setIP">
+					<fieldset class="fieldsetWidth">
+						<div id='main'></div>
+						<h3>IP Setting</h3>
+						<p><label for='txtIp'>IP ADDR:</label><input type='text' id='txtIp' name='ip' size='16' /></p>
+						<p><label for='txtSub'>NetMask:</label><input type='text' id='txtSub' name='netmask' size='16' /></p>
+						<p><label for='txtGw'>Gateway:</label><input type='text' id='txtGw' name='gateway' size='16' /></p>
+						<p><input type='button' name ='setIpPost' value='Save&Reboot' onclick='setIpPostJs()' /></p>
+					</fieldset>
+				</span>
+				<!--
+				<div class="menutitle" onclick="SwitchMenu('sub1')">Read/Write Options</div>
+				<span class="submenu" id="sub1">
+					<fieldset class="fieldsetWidth" >
+						<legend>Read Behaviour </legend>
+						<input type="radio" checked="checked" name="ReadCon" value="1" />
+						Read Continuously
+						<br />
+						<br />
+						RF  ON  (ms )   <input  type="text" value="1000"/>
+						<br />
+						RF Off (ms)    <input   type="text" value="0"/>
+						<br />
+						<br />
+						<input type="radio"  name="ReadCon" value="0" />
+						Read Once
+						<br />
+						<br />
+						<input type="checkbox" name="FastSearch">
+						Fast Search
+						<br />
+					</fieldset>
+					<fieldset class="fieldsetWidth">
+						<legend>Protocols </legend>
+					</fieldset>
+					<fieldset class="fieldsetWidth">
+						<legend>Antennas </legend>
+						<input type="checkbox" name="AntennaDetection">Antenna Detection
+						<br />
+						<br />
+						Switching Method 	<br />
+						<input type="radio"  name="SwitchingMethod" value="0" /> Equal Time
+						<br />
+						<input type="radio"  name="SwitchingMethod" value="0" /> Dynamic
+					</fieldset>
+					<fieldset class="fieldsetWidth">
+						<legend>Embedded ReadData </legend>
+						<input type="checkbox" name="EmbReadData"> Enable
+					</fieldset>
+					<fieldset class="fieldsetWidth">
+						<legend>Filter </legend>
+						<input type="checkbox" name="ApplyFilter"> Apply Filter
+					</fieldset>
+				</span>
+				<div class="menutitle" onclick="SwitchMenu('sub2')">Performance Metrics</div>
+				<span class="submenu" id="sub2">
+					<fieldset class="fieldsetWidth">
+						<p>Unique Tag Count 0</p>
+						<p>Total Tag Count 0</p>
+						<p>in 0 Sec</p>
+						<p>ReadRate/Sec 0</p>
+					</fieldset>
+				</span>
+				-->
+			</div>			
+		</form>
+	</div>
+	<form>
+		<br/><br/>
+		<fieldset class="fieldsetWidth" >
+		<div id="read"><h4>Unique Tag Count</h4></div>
+		<textarea rows="3" cols="20" id="UniqueTag"></textarea>		
+		<button type="button" onclick="TagCount()">TagCount</button>
+		</fieldset>
+		<!--
+		<fieldset class="fieldsetWidth" >
+		<div id="myDiv2"><h4>Tag Show </h4></div>
+		<button type="button" onclick="loadXMLDocTagShow()">Tag Show</button>
+		</fieldset>
+		<fieldset class="fieldsetWidth" >
+		<div id="myDiv"><h3>Let AJAX change this text</h3></div>
+		<button type="button" onclick="loadXMLDoc()">TestButton</button>
+		</fieldset>
+		-->
+	</form>
+	<!--
+	<fieldset class="fieldsetWidth" >
+	<div>
+	<h3>Debug info</h3>
+	<textarea rows="3" cols="20" id="debug">	
+	</textarea></div>
+	</fieldset>
+	-->
+	<script src="/js/index.js"></script>
+	<script type="text/javascript" src="/js/jquery-3.0.0.js"></script>
+	<script type="text/javascript" src="/js/jquery-3.0.0.min.js"></script>
+	<script type="text/javascript">
+		window.onload=function (){
+			onloadFun();
+		}
+	</script>
+</body>
+</html>

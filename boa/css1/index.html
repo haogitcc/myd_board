@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+		<link rel="stylesheet" href="/css/style.css" media="screen" type="text/css" />
+		<title>NetConfig</title>
+	</head>
+	<body>
+		<div id="background_layer">
+    		<div id="top_layer" style="position:relative;">
+    		</div>
+    	</div>
+		<form id="ipSetForm">
+			<!-- Keep all menus within masterdiv-->
+			<div id="iddiv" class="centerDiv">	
+				<!--<div class="menutitle" onclick="SwitchMenu('setIP')">IP Config</div>
+				<span class="submenu" id="setIP">-->
+				<span>
+					<fieldset class="fieldsetWidth">
+						<div id='main'></div>
+						<h3>IP Setting</h3>
+						<hr />
+						<p><label for='txtIp'>IP ADDR:</label><input type='text' id='txtIp' name='ip' size='16' /></p>
+						<p><label for='txtSub'>NetMask:</label><input type='text' id='txtSub' name='netmask' size='16' /></p>
+						<p><label for='txtGw'>Gateway:</label><input type='text' id='txtGw' name='gateway' size='16' /></p>
+						<p><label for='txtPort'>ServerPort:</label><input type='text' id='txtPort' name='sPort' size='16' /></p>
+						<hr />
+						<p><input  type='button' name ='setIpPost' value='Save&Reboot' onclick='setIpPostJs()' /></p>
+					</fieldset>
+				</span>
+			</div>		
+		    <p></p>	
+			<!-- Keep all menus within masterdiv-->
+			<div id="wifdiv" class="centerDiv">
+					<fieldset class="fieldsetWidth">
+						<h3>WIFI Mode
+						<select id="wifiMode" name="wifiMode" style="width:100px;" onchange='selectChange()'>
+						  <option value="0">STA</option>
+						  <option value="1">AP-2G</option>
+						  <option value="2">AP-5G</option>
+						</select>
+						</h3>
+						<hr />
+						<div id='main'></div>
+						<h3>WIFI Setting</h3>
+						<hr />
+						<p><label for='wifiSsid'>SSID:</label><input type='text' id='wifiSsid' name='wifiSsid' size='50' /></p>
+						<p><label for='wifiPasswd'>PASSWD:</label><input type='text' id='wifiwd' name='wifiwd' size='50' /></p>						
+						<p><label for='wifiIp'>IP ADDR:</label><input type='text' id='wifiIp' name='wip' size='16' disabled="disabled"/></p>
+						<p><label for='wifiSub'>NetMask:</label><input type='text' id='wifiSub' name='wnetmask' size='16' disabled="disabled"/></p>
+						<p><label for='wifiGw'>Bcast:</label><input type='text' id='wifiGw' name='wgateway' size='16' disabled="disabled"/></p>
+						<hr />
+						<p><input type='button' name ='setWifiPost' value='ConnectWifi' onclick='setWifiPostJs()' /></p>
+					</fieldset>
+			</div>		
+		</form>
+	<!-- 	
+	<br/><br/>
+	<fieldset class="fieldsetWidth" >
+	<div>
+	<h3>Debug info</h3>
+	<textarea rows="3" cols="20" id="debug">	
+	</textarea></div>
+	</fieldset>
+	-->
+	<script src="/js/index.js"></script>
+	<script type="text/javascript" src="/js/jquery-3.0.0.js"></script>
+	<script type="text/javascript" src="/js/jquery-3.0.0.min.js"></script>
+	<script type="text/javascript">
+		window.onload=function (){
+			onloadFun();
+		}
+	</script>
+</body>
+</html>
