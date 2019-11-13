@@ -13,16 +13,32 @@
 #include "m6e_init.h"
 #include "gpio_init.h"
 
-//#define DEVICE "/dev/ttySP0"
-#define DEVICE "/dev/ttymxc1"		//ttymxc1 对应与M6E的串口
-
+#define MYD
+#ifdef MYD
+//MYD demo board
+#define DEVICE "/dev/ttymxc1"
 #define DEVICE_NAME "tmr:///dev/ttymxc1"
+#else
+//M28x demo board
+#define DEVICE "/dev/ttySP0"
+#define DEVICE_NAME "tmr:///dev/ttySP0"
+#endif
 
+/*
+??SIGPIPE??
+1?client?????,??server???close?
+2????server???client????,?????client???
+3?server????SIG_PIPE????
+*/
 void handle_pipe(int sig)
 {
-
+  //do nothing
+  printf("### handle_pipe %d\n", sig);
 }
 
+/*
+??????????????????
+*/
 void *interrupt()
 {
   	struct sigaction action;
@@ -49,7 +65,7 @@ int main(int argc, char **argv)
 	telnetd_init(1);
 	shell_play_init();
 
-	//gpio_init();
+	gpio_init();
 
 	ret = m6e_init(DEVICE_NAME);
 	if(ret != 0)
