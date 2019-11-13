@@ -57,6 +57,8 @@ int m6e_baudrate(int rate);
 int m6e_version();
 int m6e_configuration_init();
 int sqlite3_send(uint32_t length, uint8_t* message);
+void m6e_shutdown();
+
 
 
 #endif

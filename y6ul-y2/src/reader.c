@@ -16,7 +16,7 @@
 //#define DEVICE "/dev/ttySP0"
 #define DEVICE "/dev/ttymxc1"		//ttymxc1 对应与M6E的串口
 
-#define DEVICE_NAME "tmr:///dev/ttySP0"
+#define DEVICE_NAME "tmr:///dev/ttymxc1"
 
 void handle_pipe(int sig)
 {
@@ -35,6 +35,8 @@ void *interrupt()
 
 int main(int argc, char **argv)
 {
+	printf("\n\n ### ver MYD FFFF ### \n\n");
+
 	int ret = -1;
 	interrupt();
   	sys_config_init();  
@@ -48,15 +50,29 @@ int main(int argc, char **argv)
 	shell_play_init();
 
 	//gpio_init();
-	
-	/*
-	//if(0 == m6e_init("tmr:///dev/ttySP0")) //ttymxc0
-	if(0 == m6e_init("tmr:///dev/ttymxc0"))
+
+	ret = m6e_init(DEVICE_NAME);
+	if(ret != 0)
 	{
+		int times = 0;
+		while(times <= 3 && ret != 0)
+		{
+			printf("	re init times= %d, %d\n", ++times, ret);
+			ret = m6e_init(DEVICE_NAME);
+			printf("	re init %d\n", ret);
+		}
+		if(ret != 0 && times == 4)
+		{
+			printf("m6e_init and restart failed\n");
+			return -1;
+		}
+	}
+	else {
+		printf("m6e_init success\n");
 		m6e_configuration_init();
 		m6e_destory();
 	}
-	*/
+
 
 	/*
 		FF 04 06 00 07 08 00 0E A6 
@@ -75,7 +91,6 @@ int main(int argc, char **argv)
 	{
 		serial_setBaudRate(115200);		//核心板默认9600波特率 需要先设置115200与M6E上电匹配 之后设置460800
 		
-		printf("m6e_baudrate()\n");
 		m6e_baudrate(460800);	//460800
 		//m6e_version();
 		serial_flush();
