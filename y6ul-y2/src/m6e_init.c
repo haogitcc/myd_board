@@ -27,26 +27,26 @@ void checkerr(TMR_Reader* rp, TMR_Status ret, int exitval, const char *msg);
 
 int m6e_init(char* strUri)
 {
-	printf("m6e_init %s\n", strUri);
+	plog("m6e_init %s\n", strUri);
 
 	rp = &r;
 	ret = TMR_create(rp, strUri);
 	checkerr(rp, ret, 1, "creating reader");
 	if(ret != TMR_SUCCESS)
 	{
-		printf("Create device failed!\n");
+		plog("Create device failed!\n");
 		return -1;
 	}
-	printf("create success\n");
+	plog("create success\n");
 
 	ret = TMR_connect(rp);
 	checkerr(rp, ret, 1, "connecting reader");
 	if(ret != TMR_SUCCESS)
 	{
-		printf("Open device failed!\n");
+		plog("Open device failed!\n");
 		return -1;
 	}
-	printf("connect success\n");
+	plog("connect success\n");
 	
 	pthread_mutex_init(&mutex,NULL);
 	pthread_cond_init(&cond, NULL);

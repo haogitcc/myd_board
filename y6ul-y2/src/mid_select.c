@@ -24,12 +24,12 @@ static mid_mutex_t g_mutex = NULL;
 
 void mid_select_init(void)
 {
-	printf("SIZE: mid_select = %d\n", sizeof(struct mid_select));
+	plog("SIZE: mid_select = %d\n", sizeof(struct mid_select));
 	if (g_mutex)
 		return;
 	g_selarray = (struct mid_select *)malloc(sizeof(struct mid_select) * SELECT_NUM_MAX);
 	if (g_selarray == NULL) {
-		printf("malloc\n");
+		plog("malloc\n");
 		goto Err;
 	}
 	g_mutex = mid_mutex_create( );
@@ -65,7 +65,7 @@ void mid_select_exec(unsigned int clk)
 	mid_mutex_unlock(g_mutex);
 
 	if (maxfd < 1 || selnum <= 0) {
-		printf("maxfd = %d, selnum = %d\n", maxfd, selnum);
+		plog("maxfd = %d, selnum = %d\n", maxfd, selnum);
 		goto Err;
 	}
 	selnum = select(maxfd, &rset, NULL, NULL, &tv);
@@ -111,7 +111,7 @@ int mid_select_regist(int fd, mid_select_f callback, int arg)
 	}
 	if (sel == NULL) {
 		if (g_selnum >= SELECT_NUM_MAX) {
-			printf("select array is full\n");
+			plog("select array is full\n");
 			goto Err;
 		}
 		sel = &g_selarray[g_selnum];
@@ -138,7 +138,7 @@ void mid_select_unregist(int fd)
 
 	mid_mutex_lock(g_mutex);
 	if (g_selnum >= SELECT_NUM_MAX) {
-		printf("select array is full\n");
+		plog("select array is full\n");
 		goto Err;
 	}
 	for (i = g_selnum - 1; i >= 0; i --) {

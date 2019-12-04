@@ -85,25 +85,25 @@ int sys_cfg_read(char *rootname)
 
     len = strlen(rootname);
     if(len > 16) {
-        printf("%s too large\n", rootname);
+        plog("%s too large\n", rootname);
         return -1;
     }
     sprintf(filename, CONFIG_FILE_DIR"/yx_config_%s.ini", rootname);
     if (access(filename, (F_OK | R_OK))) {
-        printf("[%s] not exist or can not read\n", filename);
+        plog("[%s] not exist or can not read\n", filename);
         return -1;
     }
 
     fp = fopen(filename, "rb");
     if(NULL == fp) {
-        printf("Can not open file [%s]\n", filename);
+        plog("Can not open file [%s]\n", filename);
         return -1;
     }
 
     len = fread(g_cfgBuf, 1, CONFIG_LEN, fp);
     fclose(fp);
     if(len <= 0 || len >= CONFIG_LEN) {
-        printf("len = %d, CONFIG_LEN = %d\n", len, CONFIG_LEN);
+        plog("len = %d, CONFIG_LEN = %d\n", len, CONFIG_LEN);
         return -1;
     }
     g_cfgBuf[len] = 0;
@@ -120,17 +120,17 @@ int sys_cfg_write(char *rootname)
 
     len = strlen(rootname);
     if(len > 16) {
-        printf("%s too large\n", rootname);
+        plog("%s too large\n", rootname);
         return -1;
     }
 
     if(mid_mutex_lock(g_mutex))
-        printf("\n");
+        plog("\n");
 
     sprintf(filename, CONFIG_FILE_DIR"/yx_config_%s.ini", rootname);
     len = ind_cfg_output(g_cfgTree, rootname, g_cfgBuf, CONFIG_LEN);
     if(len <= 0) {
-        printf("tree_cfg_input = %d\n", len);
+        plog("tree_cfg_input = %d\n", len);
         mid_mutex_unlock(g_mutex);
         return -1;
     }
@@ -139,7 +139,7 @@ int sys_cfg_write(char *rootname)
     fp = fopen(filename, "wb");
     umask(oldMask);
     if(NULL == fp) {
-        printf("fopen = %s\n", filename);
+        plog("fopen = %s\n", filename);
         mid_mutex_unlock(g_mutex);
         return -1;
     }
@@ -159,19 +159,19 @@ int sys_config_init(void)
 
     g_mutex = mid_mutex_create();
     if(g_mutex == NULL) {
-        printf("mid_mutex_create");
+        plog("mid_mutex_create");
         return -1;
     }
 
     g_cfgBuf = (char *)malloc(CONFIG_LEN);
     if(g_cfgBuf == NULL) {
-        printf("malloc :: memory");
+        plog("malloc :: memory");
         return -1;
     }
 
     g_cfgTree = ind_cfg_create();
     if(g_cfgTree == NULL) {
-        printf("tree_cfg_create\n");
+        plog("tree_cfg_create\n");
         if(g_cfgBuf)
             free(g_cfgBuf);
         return -1;
@@ -204,7 +204,7 @@ int sys_config_init(void)
 void sys_config_load(int reset)
 {
     if(mid_mutex_lock(g_mutex))
-        printf("\n");
+        plog("\n");
 
     memset(&sysConfigs, 0, sizeof(struct SYS_SETTINGS));
 
@@ -234,10 +234,10 @@ void sys_config_load(int reset)
 
     if(reset == 0) {
         if(0 == sys_cfg_read("system")) {
-            printf("Read system config file OK!\n");
+            plog("Read system config file OK!\n");
         } else {    
 			sys_config_save();
-            printf("ERROR:Read system config file failed.\n");
+            plog("[%s, %d] ERROR:Read system config file failed.\n", __FILE__, __LINE__);
         }
     } else {
         sys_config_save();
@@ -250,7 +250,7 @@ int sys_config_save(void)/* sysConfigSave */
 {
 	isTimer = 0;
     sys_cfg_write("system");
-    printf("stb change some config info ,and save it \n");
+    plog("stb change some config info ,and save it \n");
     return 0;
 }
 
@@ -267,7 +267,7 @@ int sys_config_timer()
 int sysSettingGetString(const char* name, char* value, int valueLen, int searchFlag)
 {
     if(mid_mutex_lock(g_mutex)){
-        printf("mutex lock error. Get doubleStack.\n");
+        plog("[%s, %d] mutex lock error. Get doubleStack.\n", __FILE__, __LINE__);
         return -1;
     }
 
@@ -288,17 +288,17 @@ int sysSettingGetString(const char* name, char* value, int valueLen, int searchF
 	else if(!strcmp(name, "wifiwd"))
 		strncpy(value, sysConfigs.wifipassword, valueLen);
     else
-        printf("undefined parameter %s\n", name);
+        plog("undefined parameter %s\n", name);
 
     mid_mutex_unlock(g_mutex);
-    printf("name:%s, value:%s\n", name, value);
+    plog("name:%s, value:%s\n", name, value);
     return 0;
 }
 
 int sysSettingGetInt(const char* name, int* value, int searchFlag)
 {
     if(mid_mutex_lock(g_mutex)){
-        printf("mutex lock error. Get doubleStack.\n");
+        plog("[%s, %d] mutex lock error. Get doubleStack.\n", __FILE__, __LINE__);
         return -1;
     }
 
@@ -325,18 +325,18 @@ int sysSettingGetInt(const char* name, int* value, int searchFlag)
 	else if (!strcmp(name, "wifiMode"))
 		*value = sysConfigs.wifiMode;
     else
-        printf("undefined parameter %s\n", name);
+        plog("undefined parameter %s\n", name);
 	
     mid_mutex_unlock(g_mutex);
-    printf("name:%s, value:%d\n", name, *value);
+    plog("name:%s, value:%d\n", name, *value);
     return 0;
 }
 
 int sysSettingSetString(const char* name, const char* value)
 {
-    printf("name:%s, value:%s\n", name, value);
+    plog("name:%s, value:%s\n", name, value);
     if(mid_mutex_lock(g_mutex)){
-        printf("mutex lock error. Get doubleStack.\n");
+        plog("[%s, %d] mutex lock error. Get doubleStack.\n", __FILE__, __LINE__);
         return -1;
     }
 
@@ -374,7 +374,7 @@ int sysSettingSetString(const char* name, const char* value)
 			strncpy(sysConfigs.wifipassword, value, STRING_LEN_64);
 		}
 	} else {
-        printf("undefined parameter %s: %d\n", name, value);
+        plog("undefined parameter %s: %d\n", name, value);
         mid_mutex_unlock(g_mutex);
         return -1;
 	}
@@ -384,9 +384,9 @@ int sysSettingSetString(const char* name, const char* value)
 
 int sysSettingSetInt(const char* name, const int value)
 {
-    printf("name:%s, value:%d\n", name,value);
+    plog("name:%s, value:%d\n", name,value);
     if(mid_mutex_lock(g_mutex)){
-        printf("mutex lock error. Get doubleStack.\n");
+        plog("[%s, %d] mutex lock error. Get doubleStack.\n", __FILE__, __LINE__);
         return -1;
     }
 
@@ -422,7 +422,7 @@ int sysSettingSetInt(const char* name, const int value)
 		if(sysConfigs.targencoding!= value) 
 			sysConfigs.targencoding = value;
     } else {
-        printf("undefined parameter %s: %d\n", name, value);
+        plog("undefined parameter %s: %d\n", name, value);
         mid_mutex_unlock(g_mutex);
         return -1;
     }
@@ -433,7 +433,7 @@ int sysSettingSetInt(const char* name, const int value)
 
 int sys_dns_set(const char *str, int no)
 {
-    printf("Dns(%d) to (%s)\n", no, str);
+    plog("Dns(%d) to (%s)\n", no, str);
 
     if(no == 1)
         sysSettingSetString("dns1", str);

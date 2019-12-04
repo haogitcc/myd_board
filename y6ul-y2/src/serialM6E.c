@@ -16,6 +16,8 @@ static int serial_fd;
 
 int serial_open(const char *str)
 {
+  plog("serial_open(%s)\n", str);
+
   int ret;
   struct termios t;
   serial_fd = open(str, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -153,7 +155,7 @@ int serial_receiveBytes(uint8_t *message, int *len, int timeoutMs)
   ret = select(serial_fd + 1, &set, NULL, NULL, &tv);
   if (ret < 1)
   {
-  	printf("80\n");
+  	plog("80\n");
     return -1;
   }
   ret = read(serial_fd, message, 256);
@@ -205,14 +207,14 @@ int s_receiveBytes(uint32_t length, uint32_t *messageLength, uint8_t* message, c
     ret = select(serial_fd + 1, &set, NULL, NULL, &tv);
     if (ret < 1)
     {
-    	printf("s_r209!\n");
+    	plog("s_r209!\n");
       return -1;
     }
     ret = read(serial_fd, message, length);
     if (ret == -1)
     {
     
-		printf("216!\n");
+		plog("216!\n");
       if (ENXIO == errno)
       {
         return -1; 
@@ -257,7 +259,7 @@ int s_receiveBytes(uint32_t length, uint32_t *messageLength, uint8_t* message, c
 //设置板子的波特率
 int serial_setBaudRate(uint32_t rate)
 {
-	printf("rate = %d\n",rate);
+	plog("serial_setBaudRate rate = %d\n",rate);
     struct termios t;
 
     tcgetattr(serial_fd, &t);

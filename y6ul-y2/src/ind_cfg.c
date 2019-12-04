@@ -133,7 +133,7 @@ static int param_print(Param_t param, char *buf, int len)
 		while(child) {
 			l = param_print(child, buf + length, len - length);
 			if (l < 0) {
-				printf("%s param_print = %d\n", param->name, l);
+				plog("%s param_print = %d\n", param->name, l);
 				goto Err;
 			}
 			length += l;
@@ -190,7 +190,7 @@ static Param_t param_cfg_inset(CfgTree_t tree, char *paramname)
 		goto Err;
 	len = strlen(paramname);
 	if (len == 0 || len >= NAME_FULL_SIZE_64) {
-		printf("paramname = %s\n", paramname);
+		plog("paramname = %s\n", paramname);
 		goto Err;
 	}
 	param = param_find(tree, paramname);
@@ -288,7 +288,7 @@ static int config_elem(const char *buf, int len, int line, char *name, int nsize
 	len -= i;
 
 	if (buf[0] != '=') {
-		printf("line %d name = %s, op = 0x%02x\n", line, name, (uint32_t)((uint8_t)buf[0]));
+		plog("line %d name = %s, op = 0x%02x\n", line, name, (uint32_t)((uint8_t)buf[0]));
 		goto Err;
 	}
 	buf ++;
@@ -359,18 +359,18 @@ int ind_cfg_input(CfgTree_t tree, char *rootname, char *buf, int len)
 			continue;
 
 		if (strncmp(rootname, name, strlen(rootname))) {
-			printf("%s not child of %s at line %d\n", name, rootname, line);
+			plog("%s not child of %s at line %d\n", name, rootname, line);
 			continue;
 		}
 		param = param_find(tree, name);
 		if (param) {
 			switch(param->type) {
 			case CFG_TYPE_OBJECT:
-				printf("%s is object at line %d\n", name, line);
+				plog("%s is object at line %d\n", name, line);
 				break;
 			case CFG_TYPE_INT:
 				if (value[0] == 0) {
-					printf("value of %s error at line %d\n", name, line);
+					plog("value of %s error at line %d\n", name, line);
 					break;
 				}
 				*param->val.addr_int = atoi(value);
@@ -378,7 +378,7 @@ int ind_cfg_input(CfgTree_t tree, char *rootname, char *buf, int len)
 			case CFG_TYPE_STRING:
 				l = strlen(value);
 				if (l >= param->len) {
-					printf("value of %s too large at line %d\n", name, line);
+					plog("value of %s too large at line %d\n", name, line);
 					break;
 				}
 				strcpy(param->val.addr_string, value);

@@ -2,7 +2,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
 #include "app_sys_setting.h"
 #include "mid_timer.h"
 #include "mid_task.h"
@@ -12,33 +11,14 @@
 #include "server_m6e.h"
 #include "m6e_init.h"
 #include "gpio_init.h"
+#include "reader.h"
 
-#define MYD
-#ifdef MYD
-//MYD demo board
-#define DEVICE "/dev/ttymxc1"
-#define DEVICE_NAME "tmr:///dev/ttymxc1"
-#else
-//M28x demo board
-#define DEVICE "/dev/ttySP0"
-#define DEVICE_NAME "tmr:///dev/ttySP0"
-#endif
-
-/*
-??SIGPIPE??
-1?client?????,??server???close?
-2????server???client????,?????client???
-3?server????SIG_PIPE????
-*/
 void handle_pipe(int sig)
 {
   //do nothing
-  printf("### handle_pipe %d\n", sig);
+  plog("### handle_pipe %d\n", sig);
 }
 
-/*
-??????????????????
-*/
 void *interrupt()
 {
   	struct sigaction action;
@@ -51,7 +31,7 @@ void *interrupt()
 
 int main(int argc, char **argv)
 {
-	printf("\n\n ### ver MYD FFFF ### \n\n");
+	plog("[%s: %s %d]### ver MYD FFFF ###\n", __FILE__, __FUNCTION__, __LINE__);
 
 	int ret = -1;
 	interrupt();
@@ -73,18 +53,18 @@ int main(int argc, char **argv)
 		int times = 0;
 		while(times <= 3 && ret != 0)
 		{
-			printf("	re init times= %d, %d\n", ++times, ret);
+			plog("[%s: %s %d]re init times= %d, %d\n", __FILE__, __FUNCTION__, __LINE__, ++times, ret);
 			ret = m6e_init(DEVICE_NAME);
-			printf("	re init %d\n", ret);
+			plog("re init %d\n", ret);
 		}
 		if(ret != 0 && times == 4)
 		{
-			printf("m6e_init and restart failed\n");
+			plog("m6e_init and restart failed\n");
 			return -1;
 		}
 	}
 	else {
-		printf("m6e_init success\n");
+		plog("m6e_init success\n");
 		m6e_configuration_init();
 		m6e_destory();
 	}
@@ -97,10 +77,9 @@ int main(int argc, char **argv)
 	
 	
 	//m6e_version(); 先打开串口115200 获取版本号 之后发送460800
-	printf("serial_open()\n");
 	if(serial_open(DEVICE) < 0)
 	{
-		printf("error serial_open\n");
+		plog("[%s, %d] error serial_open\n", __FILE__, __LINE__);
 		return -1;
 	}
 	else 

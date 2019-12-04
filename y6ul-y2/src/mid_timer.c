@@ -14,7 +14,7 @@
 #define YEAR_CLOCK_NUM		(365*60*60*100)
 #define ERR_OUT() \
 do{                                     \
-    printf("error!\n");  \
+    plog("_msg_timer error!\n");  \
     goto Err;                           \
 } while(0)
 
@@ -196,7 +196,7 @@ int int_timer_create(int intval, int loops, mid_timer_f func, int arg)
 	unsigned int tClock;
 
 	if (intval < 0 || loops < 0 || (intval == 0 && loops != 1) || func == NULL) {
-		printf("param error! \n");
+		plog("param error! \n");
 		goto Err;
 	}
 	mid_mutex_lock(g_mutex);
@@ -206,7 +206,7 @@ int int_timer_create(int intval, int loops, mid_timer_f func, int arg)
 		timer = msg_timer_alloc( );
 	if (timer == NULL) {
 		mid_mutex_unlock(g_mutex);
-		printf("timer pool is empty!\n");
+		plog("timer pool is empty!\n");
 		goto Err;
 	}
 	tClock = mid_10ms( );
@@ -219,7 +219,7 @@ int int_timer_create(int intval, int loops, mid_timer_f func, int arg)
 	msg_timer_queue(timer, tClock);
 
 	mid_mutex_unlock(g_mutex);
-	printf("func = %p, arg = %d/0x%x\n", func, arg, arg);
+	plog("func = %p, arg = %d/0x%x\n", func, arg, arg);
 
 	mid_timer_refresh( );
 
@@ -242,11 +242,11 @@ void mid_timer_print(void)
 {
 	msg_timer_t *timer;
 
-	printf("TIMER:\n");
+	plog("TIMER:\n");
 	mid_mutex_lock(g_mutex);
 	timer = g_timer_q_time.head;
 	while(timer) {
-		printf("%p: func = %p, arg = %d/0x%x\n", timer, timer->func, timer->arg, timer->arg);
+		plog("%p: func = %p, arg = %d/0x%x\n", timer, timer->func, timer->arg, timer->arg);
 		timer = timer->next;
 	}
 	mid_mutex_unlock(g_mutex);
@@ -273,7 +273,7 @@ void mid_timer_delete_all(mid_timer_f func)
 	}
 
 	mid_mutex_unlock(g_mutex);
-	printf("func = %p\n", func);
+	plog("func = %p\n", func);
 }
 
 void mid_timer_delete(mid_timer_f func, int arg)
@@ -289,7 +289,7 @@ void mid_timer_delete(mid_timer_f func, int arg)
 	if (g_deal_num > 0) {
 		for (i = 0; i < g_deal_num; i ++) {
 			if (g_deal_funcs[i] == func && g_deal_args[i] == arg) {
-				printf("func = %p, arg = %d/0x%x\n", func, arg, arg);
+				plog("func = %p, arg = %d/0x%x\n", func, arg, arg);
 				g_deal_funcs[i] = NULL;
 			}
 		}
@@ -319,7 +319,7 @@ void mid_timer_init(void)
 {
 	int i;
 
-	printf("SIZE: _msg_timer_t = %d\n", sizeof(struct _msg_timer_t));
+	plog("SIZE: _msg_timer_t = %d\n", sizeof(struct _msg_timer_t));
 
 	mid_select_init( );
 

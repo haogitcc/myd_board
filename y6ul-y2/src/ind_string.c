@@ -120,7 +120,7 @@ int ind_lineparse(char* string, char* name, int namelen, char* value, int valuel
 	char ch;
 
 	if (string == NULL || name == NULL || namelen <= 0 || value == NULL || valuelen <= 0) {
-		printf("string = %p, name = %p, namelen = %d, value = %p, valuelen = %d\n", string, name, namelen, value, valuelen);
+		plog("string = %p, name = %p, namelen = %d, value = %p, valuelen = %d\n", string, name, namelen, value, valuelen);
 		goto Err;
 	}
 	i = 0;
@@ -157,7 +157,7 @@ int ind_lineparse(char* string, char* name, int namelen, char* value, int valuel
 	}
 	l = i - j;
 	if (l >= valuelen) {
-		printf("l = %d, valuelen = %d\n", l, valuelen);
+		plog("l = %d, valuelen = %d\n", l, valuelen);
 		goto Err;
 	}
 	memcpy(value, string + j, l);
@@ -173,7 +173,7 @@ int ind_strline(char *string, char *buf, int len)
 	int l;
 
 	if (string == NULL || buf == NULL) {
-		//printf("string = %p, buf = %p\n", string, buf);
+		//plog("string = %p, buf = %p\n", string, buf);
 		return -1;
 	}
 
@@ -186,7 +186,7 @@ int ind_strline(char *string, char *buf, int len)
 	}
 
 	if (l >= len) {
-		//printf("l = %d, len = %d\n", l, len);
+		//plog("l = %d, len = %d\n", l, len);
 		return -2;
 	}
 	if (l > 0)
@@ -305,7 +305,7 @@ int ind_str8tohex(char *buf, unsigned int *hex)
 	unsigned int h;
 
 	if (buf == NULL || hex == NULL) {
-		printf("buf = %p, hex = %p\n", buf, hex);
+		plog("buf = %p, hex = %p\n", buf, hex);
 		goto Err;
 	}
 	h = 0;
@@ -316,7 +316,7 @@ int ind_str8tohex(char *buf, unsigned int *hex)
 		else if (ch >= 'a' && ch <= 'f')
 			h = (h << 4) + 10 + (ch - 'a');
 		else {
-			printf("buf[%d] = %x\n", i, ch);
+			plog("buf[%d] = %x\n", i, ch);
 			goto Err;
 		}
 	}

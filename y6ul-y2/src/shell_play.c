@@ -29,11 +29,11 @@ static int shell_mix_pcm(int argc, char **argv)
     mixpcm.bitWidth = atoi(argv[2]);
     mixpcm.channels = atoi(argv[3]);
 
-    PRINTF("mid_stream_open\n");
+    plog("mid_stream_open\n");
     magic = mid_stream_open(0, (char*)&mixpcm, APP_TYPE_MIX_PCM, 0);
     mid_stream_sync(0, 1000);
     len = mid_stream_mix_space(0, magic);
-    PRINTF("@ len = %d\n", len);
+    plog("@ len = %d\n", len);
 
     fp = fopen(argv[0], "rb");
     if (fp == NULL)
@@ -46,7 +46,7 @@ static int shell_mix_pcm(int argc, char **argv)
             len = mid_stream_mix_space(0, magic);
             if (len > 0)
                 break;
-            PRINTF("wait ...\n");
+            plog("wait ...\n");
             mid_task_delay(100);
         }
         if (len > MIX_READ_SIZE)
@@ -66,7 +66,7 @@ static int shell_mix_pcm(int argc, char **argv)
 Err:
     if (fp)
         fclose(fp);
-    PRINTF("mid_stream_close\n");
+    plog("mid_stream_close\n");
     mid_stream_close(0, 0);
     return 0;
 }

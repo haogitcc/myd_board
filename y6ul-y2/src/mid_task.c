@@ -13,7 +13,7 @@ typedef void *(*pthread_routine) (void *);
 
 #define ERR_OUT() \
 do{                                     \
-    printf("error!\n");  \
+    plog("mid_task error!\n");  \
     goto Err;                           \
 } while(0)
 
@@ -40,14 +40,14 @@ int mid_task_create(const char* name, mid_func_t func, void *arg)
 	int tIndex, err;
 
 	if(g_mutex == NULL) {
-		printf("mid task not init\n");
+		plog("mid task not init\n");
 		ERR_OUT();
 	}
 	if (mid_mutex_lock(g_mutex))
-		printf("\n");
+		plog("\n");
 	if(g_index >= MID_TASKNUM_MAX) {
 		mid_mutex_unlock(g_mutex);
-		printf("mid task not init %d, %d, %s\n", g_index, MID_TASKNUM_MAX, name);
+		plog("mid task not init %d, %d, %s\n", g_index, MID_TASKNUM_MAX, name);
 		ERR_OUT();
 	}
 	tIndex = g_index;
@@ -56,7 +56,7 @@ int mid_task_create(const char* name, mid_func_t func, void *arg)
 
 	err = pthread_create(&g_threads[tIndex], NULL, (pthread_routine)func, arg);
 	if (err) {
-		printf("pthread_create\n");
+		plog("pthread_create\n");
 		ERR_OUT();
 	}
 
@@ -71,15 +71,15 @@ int mid_task_create_ex(const char* name, mid_func_t func, void *arg)
 	int tIndex, err;
 
 	if(g_mutex == NULL) {
-		printf("mid task not init\n");
+		plog("mid task not init\n");
 		ERR_OUT();
 	}
 
 	if (mid_mutex_lock(g_mutex))
-		printf("\n");
+		plog("\n");
 	if(g_index >= MID_TASKNUM_MAX) {
 		mid_mutex_unlock(g_mutex);
-		printf("mid task not init %d, %d, %s\n", g_index, MID_TASKNUM_MAX, name);
+		plog("mid task not init %d, %d, %s\n", g_index, MID_TASKNUM_MAX, name);
 		ERR_OUT();
 	}
 	tIndex = g_index;
@@ -101,7 +101,7 @@ int mid_task_create_ex(const char* name, mid_func_t func, void *arg)
 
 	err = pthread_create(&g_threads[tIndex], &attrThread, (pthread_routine)func, arg);
 	if (err) {
-		printf("pthread_create\n");
+		plog("pthread_create\n");
 		ERR_OUT();
 	}
 

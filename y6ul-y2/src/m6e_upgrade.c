@@ -22,7 +22,7 @@ int m6e_upgrade_openfile()
 		return 0;
 	fp = fopen(UPGRADE_FILE, "wb+");
 	if(!fp) {
-		printf("open file failed!\n");
+		plog("open file failed!\n");
 		return -1;
 	}
 	length = 0;
@@ -34,7 +34,7 @@ int m6e_upgrade_resolve(char *buffer)
 	int ret;
 	//char *buf = (char *)malloc(255);
 	//memcpy(buf , buffer + 12, 240);
-	//printf("buf = %d\n",strlen(buf));
+	//plog("buf = %d\n",strlen(buf));
 	ret = fwrite(buffer + 12, 1, buffer[1] - 9 , fp);
 	length += ret;
 	sync();

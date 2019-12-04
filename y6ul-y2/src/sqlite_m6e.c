@@ -24,14 +24,14 @@ int create_sqlite(void)
 	if(rc)
 	{
 		//fprintf(strerr,"can't open database:%s\n",sqlite_errmsg(db));
-		printf("can't open database!\n");
+		plog("can't open database!\n");
 		sqlite3_close(db);
 		return -1;
 	}
 
 	char *sql = "CREATE TABLE fuwit(epc_id interger primary key,EPC VARCHAR(128));";
 	sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
-	printf("zErrMsg = %s\n",zErrMsg);
+	plog("zErrMsg = %s\n",zErrMsg);
 	return 0;
 }
 
@@ -53,7 +53,7 @@ conutry:
 		i++;
 		sprintf(sql,"INSERT INTO fuwit VALUES(%d,'%s');",count,tag->epc);
 		sqlite3_exec(db,sql,NULL,NULL,&zErrMsg);
-		printf("exec zErrMsg = %s\n",zErrMsg);
+		plog("exec zErrMsg = %s\n",zErrMsg);
 		if(!zErrMsg) {
 			ncount++;
 			if(i < 500)
@@ -103,7 +103,7 @@ int sqlite_send()
 			{
 				sprintf(sql,"DELETE FROM fuwit WHERE epc_id=%d;",id);
 				sqlite3_exec(db,sql,NULL,NULL,&zErrMsg);
-				printf("delete zErrMsg = %s\n",zErrMsg);
+				plog("delete zErrMsg = %s\n",zErrMsg);
 				ncount--;
 			} else {
 				return -1;
@@ -126,7 +126,7 @@ int sqlite_close_ex()
 int sqlite_task()
 {
 	while(1) {
-	//printf("sqlite task = %d!\n",s_sqlite);
+	//plog("sqlite task = %d!\n",s_sqlite);
 		//if(ncount)
 			//sqlite_get_t();
 		sleep(5);

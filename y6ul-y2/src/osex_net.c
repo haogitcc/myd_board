@@ -40,7 +40,7 @@ int osex_netlink(void)
 	ifr.ifr_data = (void *)&tLink;
 
 	if (ioctl(so, SIOCGLINKSTATE, &ifr) == -1)
-            printf("ioctl err\n");
+            plog("ioctl err\n");
 	close(so);
 
     return tLink;
@@ -78,7 +78,7 @@ static inline int raw_socket_req_r(const char* ifname, struct ifreq* pifr, int r
 	int ret;
 
 	if (!ifname || !pifr) {
-		printf("ifname = %p, pifr = %p\n", ifname, pifr);
+		plog("ifname = %p, pifr = %p\n", ifname, pifr);
 		goto Err;
 	}
 
@@ -86,7 +86,7 @@ static inline int raw_socket_req_r(const char* ifname, struct ifreq* pifr, int r
 
 	ret = ioctl(get_raw_socket( ), req, pifr);
 	if (ret < 0) {
-		printf("ioctl ret = %d / %s\n", ret, strerror(errno));
+		plog("ioctl ret = %d / %s\n", ret, strerror(errno));
 		goto Err;
 	}
 	return 0;
@@ -104,7 +104,7 @@ static inline int raw_socket_req(const char* ifname, char* buf, int req)
 	ifr.ifr_addr.sa_family = AF_INET;
 	ret = raw_socket_req_r(ifname, &ifr, req);
 	if (ret < 0) {
-		printf("raw_socket_req_r ret = %d\n", ret);
+		plog("raw_socket_req_r ret = %d\n", ret);
 		goto Err;
 	}
 	p =(struct sockaddr_in*)&(ifr.ifr_addr);
@@ -134,7 +134,7 @@ int osex_ipaddr_set(const char* ifname, char* ip)
 		goto Err;
 
 	if (raw_socket_req_r(ifname, &ifr, SIOCGIFADDR) < 0)
-		printf("raw_socket_req_r 1\n");
+		plog("raw_socket_req_r 1\n");
 
 	p =(struct sockaddr_in*)&(ifr.ifr_addr);
 	p->sin_addr.s_addr = inet_addr(ip);
@@ -142,17 +142,17 @@ int osex_ipaddr_set(const char* ifname, char* ip)
 	p->sin_family = AF_INET;
 
 	if (raw_socket_req_r(ifname, &ifr, SIOCSIFADDR) < 0) {
-		printf("raw_socket_req_r 2\n");
+		plog("raw_socket_req_r 2\n");
 		goto Err;
 	}
 	if(raw_socket_req_r(ifname, &ifr, SIOCGIFFLAGS) < 0) {
-		printf("raw_socket_req_r 3\n");
+		plog("raw_socket_req_r 3\n");
 		goto Err;
 	}
 	if (!(ifr.ifr_flags & IFF_UP)){
 		ifr.ifr_flags |= IFF_UP;
 		if(raw_socket_req_r(ifname, &ifr, SIOCSIFFLAGS) <0)
-			printf("raw_socket_req_r 4\n");
+			plog("raw_socket_req_r 4\n");
 			goto Err;
 	}
 
@@ -188,9 +188,9 @@ int osex_ipdns_get(char *dns0, char *dns1)
 	else
 		sscanf(buf, "nameserver %s\n", dns0);
 
-	printf("@@@@@@@@: dns0 = %s\n", dns0);
+	plog("@@@@@@@@: dns0 = %s\n", dns0);
 	if (dns1)
-		printf("@@@@@@@@: dns1 = %s\n", dns1);
+		plog("@@@@@@@@: dns1 = %s\n", dns1);
 
 	return 0;
 Err:
@@ -238,14 +238,14 @@ int osex_ipmask_set(const char* ifname, char* ip)
 		goto Err;
 
 	if (raw_socket_req_r(ifname, &ifr, SIOCGIFNETMASK) < 0) {
-		printf("request info failed!\n");
+		plog("request info failed!\n");
 		goto Err;
 	}
 	p =(struct sockaddr_in*)&(ifr.ifr_addr);
 	p->sin_addr.s_addr = inet_addr(ip);
 
 	if (raw_socket_req_r(ifname, &ifr, SIOCSIFNETMASK) < 0){
-		printf("request info failed!");
+		plog("request info failed!");
 		goto Err;
 	}
 	return 0;
@@ -259,7 +259,7 @@ int osex_netmac_get(const char *ifname, char *mac)
 
 	memset(&ifr, 0, sizeof(struct ifreq));
 	if(raw_socket_req_r(ifname, &ifr, SIOCGIFHWADDR) < 0) {
-		printf("request info failed!\n");
+		plog("request info failed!\n");
 		goto Err;
 	}
 	memcpy(mac,(char*)ifr.ifr_hwaddr.sa_data, 6);
@@ -275,7 +275,7 @@ int osex_iproute_add(const char* dst, const char* mask, const char* gw, int metr
 	struct sockaddr_in	*addr;
 
 	if (!dst || !mask || !gw) {
-		printf("dst = %p, mask = %p, gw = %p\n", dst, mask, gw);
+		plog("dst = %p, mask = %p, gw = %p\n", dst, mask, gw);
 		goto Err;
 	}
 
@@ -300,7 +300,7 @@ int osex_iproute_add(const char* dst, const char* mask, const char* gw, int metr
 	err = ioctl(get_raw_socket( ), SIOCADDRT, &rt);
 
 	if (err && errno != EEXIST) {
-		printf("ioctl err = %d, errno = %d\n", err, errno);
+		plog("ioctl err = %d, errno = %d\n", err, errno);
 		goto Err;
 	}
 	return 0;
@@ -313,13 +313,13 @@ int osex_igmp_version_get(void)                              // add by Li  Sense
 	int fd, ret, igver;
 
 	if ((fd = open(LINUX_CONF_VAL, O_RDONLY)) == -1) {
-		printf("GET IGMP VERSION ERROR! Can't open the config file.\n");
+		plog("GET IGMP VERSION ERROR! Can't open the config file.\n");
 		goto Err;
 	}
 	ret = read(fd, &igver, 4);
 	if (ret <= 0 || ret != 4) {
 		close(fd);
-		printf("read igver error!\n");
+		plog("read igver error!\n");
 		goto Err;
 	}
 
@@ -336,19 +336,19 @@ int osex_igmp_version_set(const char *file, const char *igver)
 	int ret;
 
 	if(igver == NULL || !isdigit(igver[0]))
-		printf("The igver ptr error!\n");
+		plog("The igver ptr error!\n");
 
 	if(atoi(igver) != 2 && atoi(igver) != 3)
-		printf("The value of igmp version error!\n");
+		plog("The value of igmp version error!\n");
 
 	if(file != NULL && isprint(file[0])) {
 		if((fp = fopen(file, "wb")) == NULL) {
-			printf("SET IGMP VERSION ERROR! Open LINUX_CONF_VAL error!\n");
+			plog("SET IGMP VERSION ERROR! Open LINUX_CONF_VAL error!\n");
 			goto Err;
 		}
 	} else {
 		if((fp = fopen(LINUX_CONF_VAL, "wb")) == NULL) {
-			printf("SET IGMP VERSION ERROR! Open LINUX_CONF_VAL error!\n");
+			plog("SET IGMP VERSION ERROR! Open LINUX_CONF_VAL error!\n");
 			goto Err;
 		}
 	}
@@ -357,7 +357,7 @@ int osex_igmp_version_set(const char *file, const char *igver)
 
 	if(ret <= 0) {
 		fclose(fp);
-		printf("write igver error!\n");
+		plog("write igver error!\n");
 		goto Err;
 	}
 

@@ -109,7 +109,7 @@ int rng_buf_enter(struct ringbuf* rng, char *buf, int len)
 	else
 		l = rng->elem_size;
 
-	//PRINTF("l = %d, len = %d\n", l, len);
+	//plog("l = %d, len = %d\n", l, len);
 	n = 0;
 	p = rng->buf + rng->write_idx;
 	while(len > 0) {
@@ -138,7 +138,7 @@ int rng_buf_enter(struct ringbuf* rng, char *buf, int len)
 	if (rng->write_idx > rng->buf_size)
 		rng->write_idx = 0;
 
-	//PRINTF("n = %d, write_idx = %d, read_max_idx = %d\n", n, rng->write_idx, rng->read_max_idx);
+	//plog("n = %d, write_idx = %d, read_max_idx = %d\n", n, rng->write_idx, rng->read_max_idx);
 
 	mid_mutex_unlock(rng->mutex);
 

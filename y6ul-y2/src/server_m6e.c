@@ -17,20 +17,13 @@
 #include "server_m6e.h"
 #include "tmr_utils.h"
 #include "tmr_params.h"
+#include "gpio_init.h"
 
 #define PORT   8086
 #define MSGLEN 256
 #define TMR_SR_MAX_PACKET_SIZE 256
 #define FILENAME "/root/upgrade_temp.bin"
 
-#define MYD
-#ifdef MYD
-#define GPI_30 42
-#define GPI_31 41
-#else
-#define GPI_30 62
-#define GPI_31 63
-#endif
 int gServerPort = PORT;
 
 static int server_fd = -1;
@@ -261,7 +254,7 @@ int pthread_tag_init()
 {
       g_mutex = mid_mutex_create();
       if(g_mutex == NULL) {
-         printf("mid_mutex_create");
+         plog("mid_mutex_create");
          return -1;
       }
 
@@ -274,7 +267,7 @@ int pthread_tag_init()
 
 int m6e_baudrate(int rate)
 {
-	printf("m6e_baudrat rate=%d\n",rate);
+	plog("m6e_baudrate rate=%d\n",rate);
 	uint8_t msg[TMR_SR_MAX_PACKET_SIZE];
 	uint8_t i;
 	int error,len;
@@ -290,12 +283,12 @@ int m6e_baudrate(int rate)
     msg[8] = crc & 0xff;
 	
 	error = serial_sendBytes(9,msg);
-	printf("baudrate = %d\n",error);
+	plog("[%s, %d] serial_sendBytes error= %d\n", __FILE__, __LINE__, error);
 	error = 0;
 	error = receiveMessage(msg, &len, 5000);
-	printf("error=%d\n");
+	plog("[%s, %d] receiveMessage error=%d\n", __FILE__, __LINE__, error);
 	msg[error]='\0';
-	printf("msg=[%s]\n",msg);
+	plog("[%s, %d] msg=[%p]\n", __FILE__, __LINE__,msg);
 	if((error == 0) && (0 == GETU16AT(msg, 3)))
 		serial_setBaudRate(rate);
 }
@@ -316,15 +309,15 @@ int m6e_version()
     msg[4] = crc & 0xff;
 	
 	error = serial_sendBytes(9,msg);
-	printf("m6e_version = %d\n",error);
+	plog("[%s, %d] m6e_version = %d\n", __FILE__, __LINE__,error);
 	error = 0;
 	error = receiveMessage(msg, &len, 5000);
-	printf("error=%d\n");
+	plog("[%s, %d] receiveMessage error=%d\n", __FILE__, __LINE__, error);
 	msg[error]='\0';
-	printf("msg=%p %p %p %p %p %p\n",msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
+	plog("msg=%p %p %p %p %p %p\n",msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
 	
 	//error = receiveMessage(msg, &len, 5000);
-	printf("cuurent = %p\n",msg[5]);
+	plog("cuurent = %p\n",msg[5]);
 }
 
 static int
@@ -337,7 +330,7 @@ tcp_sendBytes(int fd, uint32_t length, uint8_t* message)
   	do 
   	{
 		ret = send(fd, message, length, MSG_NOSIGNAL | MSG_DONTWAIT);
-		//printf("tcp send : %d\n", ret);
+		//plog("tcp send : %d\n", ret);
     	if (ret < 0)
     	{
       		return -1;
@@ -382,15 +375,15 @@ int reader_gpi(char *buffer, int fd)
 
 	ret = serial_sendBytes(buffer[1] +5, buffer);
 	ret = receiveMessage(msg, &len, 5000);
-	/*printf("reader_gpi[%d]\n", len+1);
+	/*plog("reader_gpi[%d]\n", len+1);
 	for(i=0; i<len; i++)
 	{
-	    printf("%p, ", msg[i]);
+	    plog("%p, ", msg[i]);
 	}
-	printf("done ...\n");*/
+	plog("done ...\n");*/
 
  	len = (msg[1] - 1)/3;// (len-option)/3 (3=id+direction+high) //gpioµÄ¸öÊý
-	//printf("gpio_len=%d\n", len);
+	//plog("gpio_len=%d\n", len);
   	offset = 6;
  	for (j = 0; j < len ; j++)
   	{
@@ -421,13 +414,13 @@ int reader_gpi(char *buffer, int fd)
   	stategpi[j].output = state[i].output;
 
     int gpi_count = j+1;
-	//printf("gpi_count=%d\n", gpi_count);
+	//plog("gpi_count=%d\n", gpi_count);
 	
 	i = 0;	
 	SETU8(msg, i, 0xFF);
 	
 	int send_len = 1 + gpi_count*3;// option + data_length
-	//printf("send_len=%p(%d)\n", send_len, send_len);
+	//plog("send_len=%p(%d)\n", send_len, send_len);
 	SETU8(msg, i, send_len);
 	//SETU8(msg, i, 0x0A);
 	SETU8(msg, i, 0x66);
@@ -448,27 +441,30 @@ int reader_gpi(char *buffer, int fd)
 
     int msg_len = send_len +7; //send_len + soh + len + opcode + status(2) + crc(2)
 	ret = tcp_sendBytes(fd, msg_len, msg);
-	/*printf("tcp_sendBytes[%d]\n", msg_len);
+	/*plog("tcp_sendBytes[%d]\n", msg_len);
 	for(i=0; i<msg_len; i++)
 	{
-	    printf("%p, ", msg[i]);
+	    plog("%p, ", msg[i]);
 	}
-	printf("done ...\n");*/
+	plog("done ...\n");*/
 	return 0;
 }
 
 
 void reader_gpo(int fd, int gpo, int value)
 {
+    plog("[%s, %s, %d] gpo=%d, timeout=%d", __FILE__, __FUNCTION__, __LINE__, gpo, value);   
 	uint8_t msg[TMR_SR_MAX_PACKET_SIZE];
 	uint16_t crc;
 
 	uint8_t i;
 	if(7 == gpo)
-		gpio_write(61, value);
+	{
+	    gpio_write(GPO_29, value);
+	}
 	else if(8 == gpo)
 	{
-		gpio_write(60, value);
+		gpio_write(GPO_28, value);
 	}
 	
 	i=0;
@@ -479,7 +475,7 @@ void reader_gpo(int fd, int gpo, int value)
 	SETU8(msg, i, 0x00);
 	crc = tm_crc(&msg[1] , 4);
 	msg[5] = crc >> 8;
-      msg[6] = crc & 0xff;
+	msg[6] = crc & 0xff;
 
 	tcp_sendBytes(fd, 7, msg);
 }
@@ -576,7 +572,7 @@ tcp_receiveBytes(int fd, uint32_t length, uint32_t* messageLength, uint8_t* mess
     }
 
 	if(fd != client_fd) {
-		printf("other client connected!\n");
+		plog("other client connected!\n");
 		return -1;
 	}
 
@@ -586,7 +582,7 @@ tcp_receiveBytes(int fd, uint32_t length, uint32_t* messageLength, uint8_t* mess
         getsockopt(fd, SOL_SOCKET, SO_ERROR, (void*)&ret, &len);
 
         if(ret != 0) {
-            printf("%s,client's socket timeout!!!\n", strerror(errno));
+            plog("%s,client's socket timeout!!!\n", strerror(errno));
             close(fd);
             client_fd = -1;
             return -1;
@@ -604,21 +600,21 @@ int anetKeepAlive(int fd, int interval)
 {
 	int val = 1;
 	if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val)) < 0)
-		printf("setsockopt SO_KEEPALIVE error!!!\n");
+		plog("setsockopt SO_KEEPALIVE error!!!\n");
 
 	val = interval;
 	if(setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, sizeof(val)) < 0)
-		printf("setsockopt TCP_KEEPIDLE error!!!\n");
+		plog("setsockopt TCP_KEEPIDLE error!!!\n");
 
 	val = 3;
 	if(setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, sizeof(val)) < 0)
-		printf("setsockopt TCP_KEEPINTVL error!!!\n");	
+		plog("setsockopt TCP_KEEPINTVL error!!!\n");	
 	
 	val = 2;
 	if(setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, sizeof(val)) < 0)
-		printf("setsockopt TCP_KEEPCNT error!!!\n");
+		plog("setsockopt TCP_KEEPCNT error!!!\n");
 
-	printf("anetKeepAlive success!\n");
+	plog("anetKeepAlive success!\n");
 	return 0;
 
 }
@@ -641,12 +637,12 @@ void*m6e_pthread_wifi(void *arg)
 	sysSettingGetString("wifi",ssid,64,0);
 	sysSettingGetString("wifiwd",passwd,64,0);
 
-	printf("wifiMode=[%d]\n",wifiMode);
+	plog("wifiMode=[%d]\n",wifiMode);
 	
 	if(0 == wifiMode)
 	{
 		sprintf(cmdbuf, "sta.sh %s %s",ssid,passwd);
-		printf("%s\n", cmdbuf);
+		plog("%s\n", cmdbuf);
 		system(cmdbuf);
 		//system("ps>sta.txt");
 	}
@@ -658,7 +654,7 @@ void*m6e_pthread_wifi(void *arg)
 	{
 		system("5g_ap_mode.sh");
 	}
-	printf("=======wifi pthread exit=========\n");
+	plog("=======wifi pthread exit=========\n");
 }
 
 void*m6e_pthread_client(void *arg)
@@ -675,7 +671,7 @@ void*m6e_pthread_client(void *arg)
 	int opcode;
 
 	if(client_fd < 0) {
-		printf("Client fd is error %d\n", client_fd);
+		plog("Client fd is error %d\n", client_fd);
 		close(client_fd);
 		client_fd = -1;
 		return NULL;
@@ -695,10 +691,10 @@ void*m6e_pthread_client(void *arg)
 		tv.tv_usec = (timeoutMs % 1000) * 1000;
 		/* Ideally should reset this timeout value every time through */
 		ret = select(connected_fd + 1, &set, NULL, &errornew_fd, NULL);
-		//printf("select ret = %d\n",ret);
+		//plog("select ret = %d\n",ret);
 		if (ret < 1 || connected_fd != client_fd)
 		{
-			printf("select error!\n");
+			plog("select error!\n");
 			break;
 		}
 
@@ -711,7 +707,7 @@ void*m6e_pthread_client(void *arg)
 			getsockopt(connected_fd, SOL_SOCKET, SO_ERROR, (void*)&ret, &len);
 
 			if(ret != 0) {
-				printf("%s,client's socket timeout!!!\n", strerror(errno));
+				plog("%s,client's socket timeout!!!\n", strerror(errno));
 				close(connected_fd);
 				connected_fd = -1;
 				break;
@@ -723,7 +719,7 @@ void*m6e_pthread_client(void *arg)
 			//while(len < MSGLEN && ((len = recv(connected_fd, buffer + len, MSGLEN - len, 0)) > 0))
 			//	len += error;
 
-			//printf("buffer = %p,%p,%p,%p,%p, %d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],error);
+			//plog("buffer = %p,%p,%p,%p,%p, %d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],error);
 			if(error == 0)
 				break;
 
@@ -767,17 +763,17 @@ void*m6e_pthread_client(void *arg)
 
 			opcode = buffer[2];
 			error = serial_sendBytes(error, buffer);
-			//printf("error = %d\n",error);				
+			//plog("error = %d\n",error);				
 	try:
 			if(continueRead == 0) {
 				memset(buffer,0,MSGLEN);
 				len = 0;
 				error = receiveMessage(buffer, &len, 30000);
-				//printf("serial_receiveBytes = %p,%p,%p,%p,%p,%d,%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],len,error);
+				//plog("serial_receiveBytes = %p,%p,%p,%p,%p,%d,%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],len,error);
 				if(len <= 0)
 					continue;
 				if(buffer[2] != opcode) {
-					printf("opcode does not match!\n");
+					plog("opcode does not match!\n");
 					goto try;
 				}
 				if(buffer[2] == 0x03)
@@ -786,10 +782,10 @@ void*m6e_pthread_client(void *arg)
 					//m6e_firmware_response(buffer);
 				}
 				error = tcp_sendBytes(connected_fd, len, buffer);
-				//printf("tcp send = %d\n",error);
+				//plog("tcp send = %d\n",error);
 			}
 			if(!continueRead && (buffer[0]== 0xFF) && (buffer[2] == 0x2F) && (buffer[6] == 0x22) ) {
-				printf("continue!\n");
+				plog("continue!\n");
 				pthread_t stbmonitor_pthread = 0;
 				pthread_attr_t tattr;
 				pthread_attr_init(&tattr);
@@ -803,7 +799,7 @@ void*m6e_pthread_client(void *arg)
 			}
 		}		
 	}	
-	printf("end!\n");
+	plog("end!\n");
 	m6e_shutdown();
 	free(buffer);
 	return NULL;
@@ -819,14 +815,14 @@ void*m6e_pthread_send(int fd)
 	while(1)
 	{
 		if((fd != client_fd) && (0 == stop)) {
-			printf("other client connected!\n");
+			plog("other client connected!\n");
 			m6e_stop();
 			stop = 2;
 		}
 		len = 0;
 		memset(buffer, 0, 256);
 		ret =  receiveMessage(buffer, &len, 5000);
-		//printf("serial_receiveBytes = %p,%p,%d\n",buffer[0],buffer[1],len);
+		//plog("serial_receiveBytes = %p,%p,%d\n",buffer[0],buffer[1],len);
 		if(0 == ret)
 		{
 			if(0 == stop){
@@ -846,7 +842,7 @@ void*m6e_pthread_send(int fd)
 		}
 
 	}
-	printf("send end!\n");
+	plog("send end!\n");
 	free(buffer);
 	if(2 == stop)
 		m6e_shutdown();
@@ -856,13 +852,14 @@ void*m6e_pthread_send(int fd)
 
 int m6e_start(void)
 {
+	plog("[%s, %s, %d]", __FILE__, __FUNCTION__, __LINE__);
     //int server_fd = -1; // sendlen;
     struct sockaddr_in tcp_addr;
     int len = 0;
 
     server_fd = socket(PF_INET, SOCK_STREAM, 0);
     if(server_fd < 0) {
-        printf("Server sockect creat\n");
+        plog("Server sockect creat\n");
         return -1;
     }
 
@@ -874,26 +871,26 @@ int m6e_start(void)
     tcp_addr.sin_family = AF_INET;
     //tcp_addr.sin_port = htons(PORT);
     sysSettingGetInt("serverport", &gServerPort, 0);
-    printf("prot = [%d]\n", gServerPort);
+    plog("prot = [%d]\n", gServerPort);
     tcp_addr.sin_port = htons(gServerPort);
     tcp_addr.sin_addr.s_addr = INADDR_ANY;
 	
     if(bind(server_fd, (struct sockaddr*)&tcp_addr, sizeof(tcp_addr)) < 0) {
-        printf("Server socket bind error\n");
+        plog("Server socket bind error\n");
         close(server_fd);
         server_fd = -1;
         return -1;
     }
 
     if(listen(server_fd, 1) < 0) {
-        printf("Server socket listen error\n");
+        plog("Server socket listen error\n");
         close(server_fd);
         server_fd = -1;
         return -1;
     }
 
 #ifdef USEWIFI
-	//printf("### USEWIFI= %d\n"?? USEWIFI);
+	//plog("### USEWIFI= %d\n"?? USEWIFI);
 	//V0.0.2 ?¨¨?????????? ????wifi
 	pthread_t stbmonitor_pthread2 = 0;
 	pthread_attr_t tattr2;
@@ -901,21 +898,21 @@ int m6e_start(void)
 	pthread_attr_setdetachstate(&tattr2, PTHREAD_CREATE_DETACHED);
 	pthread_create(&stbmonitor_pthread2, &tattr2, m6e_pthread_wifi, NULL);
 #else
-	//printf("$$$ USEWIFI= %d\n"?? USEWIFI);
+	//plog("$$$ USEWIFI= %d\n"?? USEWIFI);
 #endif
     while(1) {
         len = sizeof(tcp_addr);
         client_fd = accept(server_fd, (struct sockaddr*)&tcp_addr, &len);
 
         if(client_fd < 0) {
-            printf("Server accept error\n");
+            plog("Server accept error\n");
 			perror("accept:");
             if (EBADF == errno)
                 break;
             continue;
         }
 
-        printf("Server accept success\n");
+        plog("Server accept success\n");
 
 		anetKeepAlive(client_fd, 10);
 		int sendbuf = 6144;

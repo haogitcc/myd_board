@@ -13,7 +13,7 @@
 
 #define ERR_OUT() \
 do{                                     \
-    printf("error!\n");  \
+    plog("mid_telnet error!\n");  \
     goto Err;                           \
 } while(0)
 
@@ -451,13 +451,13 @@ static void telnetd_task(void *arg)
             on = 1;
             if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (caddr_t)&on, sizeof(on))) {
                 close(fd);
-                printf("setsockopt %d\n", errno);
+                plog("setsockopt %d\n", errno);
 				ERR_OUT();
             } else {
                 if (td->state != TELSTATE_INIT)
                     session_free(td);
                 session_make(td, fd);
-                printf("session_make\n");
+                plog("session_make\n");
             }
             continue;
         }
@@ -484,7 +484,7 @@ static void telnetd_task(void *arg)
             if (outlen > 0 && FD_ISSET(td->session_fd, &wset)) {
                 count = rng_buf_send(td->out_rng, td->session_fd);
                 if (count <= 0) {
-                    printf("recv count = %d, errno = %d\n", count, errno);
+                    plog("recv count = %d, errno = %d\n", count, errno);
 					goto Err;
                 }
             }
@@ -492,7 +492,7 @@ static void telnetd_task(void *arg)
             if (insize > 0 && FD_ISSET(td->session_fd, &rset)) {
                 count = recv(td->session_fd, td->in_buf + td->write_idx, insize, 0);
                 if (count <= 0) {
-                    printf("send count = %d, errno = %d\n", count, errno);
+                    plog("send count = %d, errno = %d\n", count, errno);
 					goto Err;
                 }
 
@@ -510,13 +510,13 @@ static int int_td_active(struct telnetd *td)
     int on;
     struct sockaddr_in sa;
 
-    printf("master_fd = %d\n", td->master_fd);
+    plog("master_fd = %d\n", td->master_fd);
     if (-1 != td->master_fd)
         return 0;
 
     td->master_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (td->master_fd < 0) {
-        printf("socket\n");
+        plog("socket\n");
 		ERR_OUT();
     }
 
@@ -528,11 +528,11 @@ static int int_td_active(struct telnetd *td)
     sa.sin_port = htons(TELPORT);
     sa.sin_addr.s_addr = INADDR_ANY;
     if (bind(td->master_fd, (struct sockaddr *)&sa, sizeof(sa))) {
-        printf("bind\n");
+        plog("bind\n");
 		ERR_OUT();
     }
     if (listen(td->master_fd, 5)) {
-        printf("listen\n");
+        plog("listen\n");
 		ERR_OUT();
     }
     return 0;
@@ -556,16 +556,16 @@ int telnetd_init(int active)
 {
     struct telnetd *td = NULL;
 
-    printf("SIZE: td_call = %d\n", sizeof(struct td_call));
+    plog("SIZE: td_call = %d\n", sizeof(struct td_call));
     //mid_netwk_buildtime( );
 
     if (g_td) {
-        printf("telnetd already init!\n");
+        plog("telnetd already init!\n");
 		ERR_OUT();
     }
     td = (struct telnetd *)malloc(sizeof(struct telnetd));
     if (td == NULL) {
-        printf("malloc\n");
+        plog("malloc\n");
 		ERR_OUT();
     }
     memset(td, 0, sizeof(struct telnetd));
@@ -575,7 +575,7 @@ int telnetd_init(int active)
 
     td->out_rng = rng_buf_create(OUTPUT_BUF_SIZE, OUTPUT_ELEM_SIZE);
     if (td->out_rng == NULL) {
-        printf("rng_buf_create\n");
+        plog("rng_buf_create\n");
 		ERR_OUT();
     }
 
@@ -609,33 +609,33 @@ int telnetd_regist(const char *callname, td_callfunc callfunc, const char *argst
     struct td_call *call, *c;
 
     if (g_td == NULL) {
-        printf("telnetd not exist!\n");
+        plog("telnetd not exist!\n");
         return -1;
     }
 
     mid_mutex_lock(g_td->mutex);
     if (callname == NULL || argstype == NULL || callfunc == NULL) {
-        printf("callname =%p, callfunc = %p, argtypes = %p!\n", callname, callfunc, argstype);
+        plog("callname =%p, callfunc = %p, argtypes = %p!\n", callname, callfunc, argstype);
 		ERR_OUT();
     }
     i = strlen(callname);
     if (i <= 0 || i >= CALL_NAME_LEN) {
-        printf("callname len = %d\n", i);
+        plog("callname len = %d\n", i);
 		ERR_OUT();
     }
 
     if (g_td->call_num >= CALL_NUM_MAX) {
-        printf("call_num = %d\n", g_td->call_num);
+        plog("call_num = %d\n", g_td->call_num);
 		ERR_OUT();
     }
     argc = strlen(argstype);
     if (argc > TD_ARGC_MAX) {
-        printf("argc = %d\n", argc);
+        plog("argc = %d\n", argc);
 		ERR_OUT();
     }
     for (i = 0; i < argc; i ++) {
         if (argstype[i] != 'd' && argstype[i] != 's') {
-            printf("argstype \"%s\" invalid!\n", argstype);
+            plog("argstype \"%s\" invalid!\n", argstype);
 			ERR_OUT();
         }
     }
@@ -648,7 +648,7 @@ int telnetd_regist(const char *callname, td_callfunc callfunc, const char *argst
     i = hash((u_char *)callname);
     for (c = g_td->call_hash[i]; c; c = c->next) {
         if (strcmp(c->name, callname) == 0) {
-            printf("%s already exist!\n", callname);
+            plog("%s already exist!\n", callname);
 			ERR_OUT();
         }
     }
@@ -692,7 +692,7 @@ void telnetd_active(void)
 {
     int msgno;
 
-    printf("\n");
+    plog("\n");
     if (g_td == NULL)
         return;
 
@@ -704,7 +704,7 @@ void telnetd_suspend(void)
 {
     int msgno;
 
-    printf("\n");
+    plog("\n");
     if (g_td == NULL)
         return;
 

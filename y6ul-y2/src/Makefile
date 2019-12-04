@@ -9,7 +9,7 @@ reader:reader.o app_sys_setting.o ind_cfg.o ind_string.o mid_msgq.o mid_mutex.o 
 	$(CC) $(CLFAGS) -o reader reader.o app_sys_setting.o ind_cfg.o ind_string.o mid_msgq.o mid_mutex.o mid_net.o mid_select.o mid_task.o mid_telnet.o mid_timer.o ringbuf.o serialM6E.o server_m6e.o shell_play.o  telnetd_port.o osex_net.o m6e_upgrade.o gpio_init.o m6e_init.o -lpthread  -I/opt/include -L/opt/lib/   -L./lib/libdhcpcd -lrt ./lib/libMercuryAPI.a ./lib/libltkc.a ./lib/libltkctm.a
 
 
-reader.o:reader.c app_sys_setting.h mid_timer.h mid_task.h mid_telnet.h mid_net.h serial_m6e.h m6e_init.h
+reader.o:reader.c app_sys_setting.h mid_timer.h mid_task.h mid_telnet.h mid_net.h serial_m6e.h m6e_init.h reader.h
 	$(CC) $(CLFAGS) -c  reader.c
 app_sys_setting.o:app_sys_setting.c mid_mutex.h ind_cfg.h ind_string.h mid_timer.h
 	$(CC) $(CLFAGS) -c app_sys_setting.c
