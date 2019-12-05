@@ -1,7 +1,15 @@
 #ifndef _GPIO_INIT_H_
 #define _GPIO_INIT_H_
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <poll.h>
 
-#define MYD
+#define MYD // use myd y6ul-y2
 #ifdef MYD
 #define GPO_04 4
 #define GPO_03 3
@@ -37,7 +45,6 @@ int gpio_poll();
 void* gpo_write(void* para);
 int gpo_open(char *device);
 int gpo_close();
-
 int gpio_write_with_timeout(int pin, int timeout);
 
 

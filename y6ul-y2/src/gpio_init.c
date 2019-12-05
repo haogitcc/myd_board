@@ -1,11 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
-#include <sys/select.h>
-#include <sys/time.h>
-#include <poll.h>
 #include "gpio_init.h"
 #include "app_sys_setting.h"
 #include "server_m6e.h"

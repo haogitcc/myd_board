@@ -1,6 +1,5 @@
 #include "utils.h"
 
-static pthread_mutex_t fileMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /*
  * safe_asprintf();
@@ -162,4 +161,5 @@ void pfinfo(const char *format, ...)
 
     pthread_mutex_unlock(&fileMutex);
 }
+
 

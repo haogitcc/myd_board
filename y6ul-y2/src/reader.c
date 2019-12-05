@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <signal.h>
-
 #include "app_sys_setting.h"
 #include "mid_timer.h"
 #include "mid_task.h"
@@ -40,7 +36,7 @@ int main(int argc, char **argv)
 	mid_task_init();	
 	mid_timer_init();
 
-	mid_connect();	//ipÉèÖÃ ÔÚy2ÎŞĞ§
+	mid_connect();	//ipè®¾ç½® åœ¨y2æ— æ•ˆ
 
 	telnetd_init(1);
 	shell_play_init();
@@ -72,11 +68,11 @@ int main(int argc, char **argv)
 
 	/*
 		FF 04 06 00 07 08 00 0E A6 
-		ÊÕµ½Êı¾İ
+		æ”¶åˆ°æ•°æ®
 	*/
 	
 	
-	//m6e_version(); ÏÈ´ò¿ª´®¿Ú115200 »ñÈ¡°æ±¾ºÅ Ö®ºó·¢ËÍ460800
+	//m6e_version(); å…ˆæ‰“å¼€ä¸²å£115200 è·å–ç‰ˆæœ¬å· ä¹‹åå‘é€460800
 	if(serial_open(DEVICE) < 0)
 	{
 		plog("[%s, %d] error serial_open\n", __FILE__, __LINE__);
@@ -84,7 +80,7 @@ int main(int argc, char **argv)
 	}
 	else 
 	{
-		serial_setBaudRate(115200);		//ºËĞÄ°åÄ¬ÈÏ9600²¨ÌØÂÊ ĞèÒªÏÈÉèÖÃ115200ÓëM6EÉÏµçÆ¥Åä Ö®ºóÉèÖÃ460800
+		serial_setBaudRate(115200);		//æ ¸å¿ƒæ¿é»˜è®¤9600æ³¢ç‰¹ç‡ éœ€è¦å…ˆè®¾ç½®115200ä¸M6Eä¸Šç”µåŒ¹é… ä¹‹åè®¾ç½®460800
 		
 		m6e_baudrate(460800);	//460800
 		//m6e_version();

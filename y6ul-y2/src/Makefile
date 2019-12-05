@@ -5,8 +5,6 @@ CC=/opt/myd_toolchains/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/bin/arm
 #CC=gcc
 CLFAGS= -Wall
 
-
-
 reader:reader.o \
 	app_sys_setting.o \
 	ind_cfg.o \
@@ -26,7 +24,8 @@ reader:reader.o \
 	osex_net.o \
 	m6e_upgrade.o \
 	gpio_init.o \
-	m6e_init.o
+	m6e_init.o \
+	utils.o
 	$(CC) $(CLFAGS) -o reader reader.o \
 	app_sys_setting.o \
 	ind_cfg.o \
@@ -47,6 +46,7 @@ reader:reader.o \
 	m6e_upgrade.o \
 	gpio_init.o \
 	m6e_init.o \
+	utils.o \
 	 -lpthread  -I/opt/include -L/opt/lib/   -L./lib/libdhcpcd -lrt ./lib/libMercuryAPI.a ./lib/libltkc.a ./lib/libltkctm.a
 
 
@@ -92,6 +92,8 @@ gpio_init.o:gpio_init.c gpio_init.h
 	$(CC) $(CLFAGS) -c gpio_init.c
 m6e_init.o:m6e_init.c m6e_init.h
 	$(CC) $(CLFAGS) -c m6e_init.c
+utils.o:utils.c utils.h
+	$(CC) $(CLFAGS) -c utils.c
 
 clean:
 	rm reader  *.o
