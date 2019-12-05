@@ -405,12 +405,12 @@ int reader_gpi(char *buffer, int fd)
 		}
 	}
 	stategpi[j].id = 5;
- 	stategpi[j].high = (0 ==gpio_read(GPI_30)? false:true);
+ 	stategpi[j].high = (0 ==gpio_read(GPI_01)? false:true);
   	stategpi[j].output = state[i].output;
 
 	j ++;
 	stategpi[j].id = 6;
- 	stategpi[j].high = (0 ==gpio_read(GPI_31)? false:true);
+ 	stategpi[j].high = (0 ==gpio_read(GPI_02)? false:true);
   	stategpi[j].output = state[i].output;
 
     int gpi_count = j+1;
@@ -460,11 +460,11 @@ void reader_gpo(int fd, int gpo, int value)
 	uint8_t i;
 	if(7 == gpo)
 	{
-	    gpio_write(GPO_29, value);
+	    gpio_write(GPO_03, value);
 	}
 	else if(8 == gpo)
 	{
-		gpio_write(GPO_28, value);
+		gpio_write(GPO_04, value);
 	}
 	
 	i=0;
@@ -733,11 +733,31 @@ void*m6e_pthread_client(void *arg)
 				error = buffer[1] + 5;
 
 			if(buffer[2] == 0x80)  //\D6\D8\C6\F4\B6\C1??\C6\F7
+			{
 				reader_restart(connected_fd);
-			else if(buffer[2] == 0x66) {
+			}
+			else if(buffer[2] == 0x81) {
+				int time = GETU16AT(buffer,3);
+				if(time > 20000)
+					continue;
+				Para *para = (Para *)malloc(sizeof(Para));
+				para->gpo = GPO_04;
+				para->timeout = time;
+				
+				pthread_t stbmonitor_pthread = 0;
+    			pthread_attr_t tattr;
+    			pthread_attr_init(&tattr);
+    			pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+				pthread_create(&stbmonitor_pthread, &tattr, gpo_write, para);
+				continue;
+			}
+			else if(buffer[2] == 0x66)
+			{
 				reader_gpi(buffer, connected_fd);
 				continue;
-			} else if(buffer[2] == 0x96 && (buffer[3] == 0x07 || buffer[3] == 0x08)) {
+			} 
+			else if(buffer[2] == 0x96 && (buffer[3] == 0x07 || buffer[3] == 0x08))
+			{
 				reader_gpo(connected_fd, buffer[3], buffer[4]);
 				continue;
 			}

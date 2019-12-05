@@ -8,27 +8,46 @@
 #include <poll.h>
 #include "gpio_init.h"
 #include "app_sys_setting.h"
+#include "server_m6e.h"
+#include "mid_mutex.h"
 
 static struct timeval tv;
+static mid_mutex_t g_mutex = NULL;
+
 
 void gpio_init()
 {
     plog("[%s, %s, %d]", __FILE__, __FUNCTION__, __LINE__);
-	gpio_export(GPO_28);
-	gpio_direction(GPO_28, 1);
-	gpio_write(GPO_28, 0);
 
-	gpio_export(GPO_29);
-	gpio_direction(GPO_29, 1);
-	gpio_write(GPO_29, 1);
+	g_mutex = mid_mutex_create();
+	if(g_mutex == NULL) {
+		plog("mid_mutex_create");
+		return -1;
+	}
 
-	gpio_export(GPI_30);
-	gpio_direction(GPI_30, 0);
-	//gpio_edge(GPI_30, 1);
+	//m28x -> 28
+	gpio_export(GPO_04);
+	gpio_direction(GPO_04, 1);
+	gpio_write(GPO_04, 0);
+	plog("[%s, %s, %d] gpio%d init success\n", __FILE__, __FUNCTION__, __LINE__, GPO_04);
+
+    //m28x -> 29
+	gpio_export(GPO_03);
+	gpio_direction(GPO_03, 1);
+	gpio_write(GPO_03, 1);
+	plog("[%s, %s, %d] gpio%d init success\n", __FILE__, __FUNCTION__, __LINE__, GPO_04);
 	
-	gpio_export(GPI_31);
-	gpio_direction(GPI_31, 0);
-	//gpio_edge(GPI_31, 1);
+    //m28x -> 30
+	gpio_export(GPI_02);
+	gpio_direction(GPI_02, 0);
+	//gpio_edge(GPI_02, 1);
+	plog("[%s, %s, %d] gpio%d init success\n", __FILE__, __FUNCTION__, __LINE__, GPO_04);
+	
+	//m28x -> 31
+	gpio_export(GPI_01);
+	gpio_direction(GPI_01, 0);
+	//gpio_edge(GPI_01, 0);
+	plog("[%s, %s, %d] gpio%d init success\n", __FILE__, __FUNCTION__, __LINE__, GPO_04);
 
 	plog("[%s, %d] gpio_init success\n", __FILE__, __LINE__);
 }
@@ -123,19 +142,93 @@ int gpio_write(int pin, int value)
 	return 0;
 }
 
+void * gpo_write(void* para)
+{
+    Para *p = (Para *)para;
+    gpio_write_with_timeout(p->gpo, p->timeout);
+	return NULL;
+}
+
+
 int gpio_write_with_timeout(int pin, int timeout)
 {
 	plog("[%s, %s, %d] pin=%d, timeout=%d", __FILE__, __FUNCTION__, __LINE__, pin, timeout);
-    gpio_write(pin, 1);
-	setTimer(0, timeout);
-	gpio_write(pin, 0);
+	printf("buzzer\n");
+	if(pthread_mutex_trylock(g_mutex) != 0)
+	{
+		printf("error mutex\n");
+		return;
+	}
+	int fd = 0;
+	
+	if(pin == 4)
+	{
+		if((fd = gpo_open(GPO04_DEVICE)) < 0) {
+			close(fd);
+			return -1;
+	    }
+	}
+	else if(pin == 3)
+	{
+		if((fd = gpo_open(GPO03_DEVICE)) < 0) {
+			close(fd);
+			return -1;
+	    }
+	}
+	else
+	{
+		return -1;
+	}
+	
+	int bytes_read = -1;
+
+	plog("[%s, %s, %d] start write 1", __FILE__, __FUNCTION__, __LINE__);
+	lseek(fd, 0, SEEK_SET);
+	bytes_read = write(fd, "1" ,1);
+	if(bytes_read < 0) {
+		goto Err;
+	}
+	plog("[%s, %s, %d] write 1 done, bytes_read=%d", __FILE__, __FUNCTION__, __LINE__, bytes_read);
+	
+	setTimer(0,timeout);
+
+	plog("[%s, %s, %d] start write 0", __FILE__, __FUNCTION__, __LINE__);
+	lseek(fd, 0, SEEK_SET);
+	bytes_read = write(fd, "0" ,1);
+	if(bytes_read< 0) {
+		goto Err;
+	}
+	plog("[%s, %s, %d] write 0 done, bytes_read=%d", __FILE__, __FUNCTION__, __LINE__, bytes_read);
+	
+	close(fd);
+	pthread_mutex_unlock(g_mutex);
+	return 0;
+
+Err:
+	pthread_mutex_unlock(g_mutex);
+	plog("gpo2 write failed!\n");
+	return -1;
 	return 0;
 }
+
+int gpo_open(char *device)
+{
+	plog("[%s, %s, %d] device=%s", __FILE__, __FUNCTION__, __LINE__, device);
+	int fd;
+	fd = open(device,O_RDWR);
+	if(fd < 0) {
+		printf("Open file %s failed!\n",device);
+		return -1;
+	}
+
+	return fd;
+}
+
 
 
 int gpio_read(int pin)
 {
-    plog("[%s, %s, %d] pin=%d", __FILE__, __FUNCTION__, __LINE__, pin);
+    //plog("[%s, %s, %d] pin=%d", __FILE__, __FUNCTION__, __LINE__, pin);
 	char value_str[3];
 	char path[64];
 	int fd;
@@ -273,7 +366,7 @@ void setTimer(int seconds, int mseconds)
 	plog("[%s, %s, %d] %ds %dms", __FILE__, __FUNCTION__, __LINE__, seconds, mseconds);
 	struct timeval temp;
 	temp.tv_sec = seconds;
-	temp.tv_usec = mseconds;
+	temp.tv_usec = mseconds*1000;
 	select(0,NULL,NULL,NULL,&temp);
 	return;
 }

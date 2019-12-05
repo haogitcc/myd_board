@@ -40,6 +40,12 @@ typedef struct tagEPC {
 	struct tagEPC *next;
 }tagEPC;
 
+typedef struct para {
+	int gpo;
+	int timeout;
+} Para;
+
+
 typedef struct Fum6_GpioPin
 {
   /** The ID number of the pin. */

@@ -3,27 +3,26 @@
 
 #define MYD
 #ifdef MYD
-#define GPO_28 4
-#define GPO_29 3
-#define GPI_30 2
-#define GPI_31 1
-//#define GPO1_DEVICE "/sys/class/gpio/gpio108/value"
-#define GPO2_DEVICE "/sys/class/gpio/gpio4/value"
-#define GPO3_DEVICE "/sys/class/gpio/gpio3/value"
-#define GPO4_DEVICE "/sys/class/gpio/gpio2/value"
-#define GPO5_DEVICE "/sys/class/gpio/gpio1/value"
+#define GPO_04 4
+#define GPO_03 3
+#define GPI_02 2
+#define GPI_01 1
+
+#define GPO04_DEVICE "/sys/class/gpio/gpio4/value"
+#define GPO03_DEVICE "/sys/class/gpio/gpio3/value"
+#define GPI02_DEVICE "/sys/class/gpio/gpio2/value"
+#define GPO01_DEVICE "/sys/class/gpio/gpio1/value"
 
 #else
-#define GPO_28 60
-#define GPO_29 61
-#define GPI_30 62
-#define GPI_31 63
+#define GPO_04 60 //28
+#define GPO_03 61 //29
+#define GPI_02 62 //30
+#define GPI_01 63 //31
 
-//#define GPO1_DEVICE "/sys/class/gpio/gpio108/value"
-#define GPO2_DEVICE "/sys/class/gpio/gpio60/value"
-#define GPO3_DEVICE "/sys/class/gpio/gpio61/value"
-#define GPO4_DEVICE "/sys/class/gpio/gpio62/value"
-#define GPO5_DEVICE "/sys/class/gpio/gpio63/value"
+#define GPO04_DEVICE "/sys/class/gpio/gpio60/value" //28
+#define GPO03_DEVICE "/sys/class/gpio/gpio61/value" //29
+#define GPO02_DEVICE "/sys/class/gpio/gpio62/value" //30
+#define GPO01_DEVICE "/sys/class/gpio/gpio63/value" //31
 
 #endif
 
@@ -35,6 +34,10 @@ int gpio_write(int pin, int value);
 int gpio_read(int pin);
 int gpio_edge(int pin, int edge);
 int gpio_poll();
+void* gpo_write(void* para);
+int gpo_open(char *device);
+int gpo_close();
+
 int gpio_write_with_timeout(int pin, int timeout);
 
 
