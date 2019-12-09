@@ -8,8 +8,9 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <poll.h>
+#include "utils.h"
+#include "reader.h"
 
-#define MYD // use myd y6ul-y2
 #ifdef MYD
 #define GPO_04 4
 #define GPO_03 3

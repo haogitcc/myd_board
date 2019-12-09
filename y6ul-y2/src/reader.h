@@ -5,7 +5,10 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define MYD
+//0 disable use wifi
+#define USEWIFI 0
+
+#define MYD // use myd y6ul-y2
 #ifdef MYD
 //MYD demo board
 #define DEVICE "/dev/ttymxc1"

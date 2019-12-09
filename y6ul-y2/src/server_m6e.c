@@ -1,23 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netinet/ip.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <semaphore.h>
-#include <linux/tcp.h>
-#include <stdint.h>
-
-
 #include "mid_mutex.h"
 #include "server_m6e.h"
 #include "tmr_utils.h"
 #include "tmr_params.h"
 #include "gpio_init.h"
+#include "reader.h"
 
 #define PORT   8086
 #define MSGLEN 256
@@ -910,15 +896,18 @@ int m6e_start(void)
     }
 
 #ifdef USEWIFI
-	//plog("### USEWIFI= %d\n"?? USEWIFI);
-	//V0.0.2 ?ии?????????? ????wifi
-	pthread_t stbmonitor_pthread2 = 0;
-	pthread_attr_t tattr2;
-	pthread_attr_init(&tattr2);
-	pthread_attr_setdetachstate(&tattr2, PTHREAD_CREATE_DETACHED);
-	pthread_create(&stbmonitor_pthread2, &tattr2, m6e_pthread_wifi, NULL);
+	if(USEWIFI == 1)
+	{
+		plog("### USEWIFI= %d\n", USEWIFI);
+		//V0.0.2 ?ии?????????? ????wifi
+		pthread_t stbmonitor_pthread2 = 0;
+		pthread_attr_t tattr2;
+		pthread_attr_init(&tattr2);
+		pthread_attr_setdetachstate(&tattr2, PTHREAD_CREATE_DETACHED);
+		pthread_create(&stbmonitor_pthread2, &tattr2, m6e_pthread_wifi, NULL);
+	}
 #else
-	//plog("$$$ USEWIFI= %d\n"?? USEWIFI);
+	plog("$$$ No define USEWIFI= %d\n", USEWIFI);
 #endif
     while(1) {
         len = sizeof(tcp_addr);

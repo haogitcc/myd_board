@@ -27,7 +27,11 @@ void *interrupt()
 
 int main(int argc, char **argv)
 {
+	#ifdef MYD
 	plog("[%s: %s %d]### ver MYD FFFF ###\n", __FILE__, __FUNCTION__, __LINE__);
+	#else
+	plog("[%s: %s %d]### ver M28X FFFF ###\n", __FILE__, __FUNCTION__, __LINE__);
+	#endif
 
 	int ret = -1;
 	interrupt();

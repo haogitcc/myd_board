@@ -1,6 +1,10 @@
 #ifndef __MID_MUTEX_H_2007_3_25__
 #define __MID_MUTEX_H_2007_3_25__
 
+#include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 typedef struct mid_mutex* mid_mutex_t;
 
 mid_mutex_t mid_mutex_create(void);

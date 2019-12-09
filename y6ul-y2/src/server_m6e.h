@@ -1,6 +1,20 @@
 #ifndef _SERVER_M6E_H
 #define _SERVER_M6E_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <netinet/ip.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <linux/tcp.h>
+#include <stdint.h>
+
 #ifndef SHUT_RD
 #define SHUT_RD 0
 #endif

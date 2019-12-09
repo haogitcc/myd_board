@@ -1,8 +1,16 @@
+BOARD=MYD
+ifeq ($(BOARD), MYD)
 # MYD toolchains
+$(warning "Myd BOARD=$(BOARD)")
 CC=/opt/myd_toolchains/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
+LIBS = lib_myd/lib_static
+else
 # 28x toolchains
-#CC=/opt/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-fsl-linux-gnueabi-gcc
-#CC=gcc
+$(warning "M28x BOARD=$(BOARD)")
+CC=/opt/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-fsl-linux-gnueabi-gcc
+LIBS = lib_m28x/lib_static
+endif
+
 CLFAGS= -Wall
 
 reader:reader.o \
@@ -47,7 +55,7 @@ reader:reader.o \
 	gpio_init.o \
 	m6e_init.o \
 	utils.o \
-	 -lpthread  -I/opt/include -L/opt/lib/   -L./lib/libdhcpcd -lrt ./lib/libMercuryAPI.a ./lib/libltkc.a ./lib/libltkctm.a
+	 -lpthread  -I/opt/include -L/opt/lib/   -L./lib/libdhcpcd -lrt ./$(LIBS)/libmercuryapi.a ./$(LIBS)/libltkc.a ./$(LIBS)/libltkctm.a
 
 
 reader.o:reader.c app_sys_setting.h mid_timer.h mid_task.h mid_telnet.h mid_net.h serial_m6e.h m6e_init.h

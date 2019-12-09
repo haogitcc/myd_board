@@ -1,8 +1,3 @@
-
-#include <pthread.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include "mid_mutex.h"
 
 struct mid_mutex {
